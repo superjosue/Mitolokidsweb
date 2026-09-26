@@ -219,7 +219,9 @@ const RIG=(()=>{
      real motion never crosses the range boundary (shoulder: lots of forward/up flexion, little extension;
      knee/elbow: bend one way only). Front view mirrors left/right; side view faces screen-left. */
   const RANGE={side:{uArmL:-90,uArmR:-90,thighL:-90,thighR:-90,shinL:-200,shinR:-200,fArmL:-200,fArmR:-200},
-               front:{uArmL:-90,uArmR:-270,thighL:-90,thighR:-270,shinL:-200,shinR:-160}};
+               front:{uArmL:-90,uArmR:-270,thighL:-90,thighR:-270,shinL:-200,shinR:-160,fArmL:-190,fArmR:-170}};
+  /* elbows: the forearm is interpolated relative to the upper arm inside the elbow's range (never the shortest
+     world-angle path), so an elbow straightens and bends like a hinge and never spins through the arm. */
   const inRange=(a,lo)=>((a-lo)%360+360)%360+lo;
   const rel=(p,n,view)=>{const[q,off]=PARENT[n],lo=(RANGE[view]||{})[n];return inRange(p[n]-p[q]-off,lo===undefined?-180:lo)};
   function blend(a,b,t){
