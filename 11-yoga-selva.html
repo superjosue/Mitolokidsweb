@@ -163,6 +163,8 @@ function PT(t){for(let i=1;i<TMAP.length;i++){const a=TMAP[i-1],b=TMAP[i];if(t<=
                            dir=-1 mirrors horizontally) + .radius for the head
      RIG.breathe(pose, amount) -> pose with chest/arms lifted a little (amount 0..1)
      RIG.debug(ctx, J, color) -> thin construction skeleton (circles + lines), for subtle geometry
+     RIG.mirror(pose) -> the same pose on the other side;  RIG.via(a, mid, b, t) -> blend a→mid→b (safe arm paths)
+     pose.mouth === 'roar' asks the story to draw an open mouth (lion breath)
    ========================================================================== */
 const RIG=(()=>{
   const L={lumbar:.16,thorax:.19,neck:.05,head:.105,upper:.15,fore:.14,hand:.035,thigh:.21,shin:.21,foot:.065,shoulder:.085,hip:.055};
@@ -183,7 +185,13 @@ const RIG=(()=>{
     mariposa:D({thighL:165,shinL:25,thighR:15,shinR:155,footL:0,footR:180,uArmL:112,fArmL:60,uArmR:68,fArmR:120,root:[0,-.07]}),
     /* seated cross-legged for breathing */
     sentado:D({thighL:170,shinL:20,thighR:10,shinR:160,footL:0,footR:180,uArmL:108,fArmL:40,uArmR:72,fArmR:140,root:[0,-.07]}),
+    /* warrior II: wide stance, front knee bent over the ankle, arms long to the sides, gaze over the front hand */
+    guerrero:D({thighL:130,shinL:92,thighR:62,shinR:62,footL:180,footR:0,uArmL:180,fArmL:180,uArmR:0,fArmR:0,head:0,root:[0,-.33]}),
+    /* lion breath: kneeling tall on the heels, hands on the knees, mouth wide open (story draws tongue + roar) */
+    leon:D({thighL:100,shinL:5,thighR:80,shinR:175,footL:0,footR:180,uArmL:108,fArmL:80,uArmR:72,fArmR:100,root:[0,-.22],mouth:'roar'}),
     /* side-view poses (character faces screen-left) */
+    /* boat: seated, lean back a little, knees bent and shins lifted, arms reaching forward */
+    barco:D({view:'side',lumbar:-68,thorax:-74,neck:-85,head:0,uArmL:185,fArmL:180,uArmR:183,fArmR:180,thighL:-140,shinL:180,thighR:-138,shinR:182,footL:250,footR:250,root:[.03,-.07]}),
     perfil:D({view:'side',uArmL:95,fArmL:92,uArmR:85,fArmR:88,thighL:92,shinL:90,thighR:88,shinR:90,footL:180,footR:180}),
     /* cat: on hands and knees, back rounded UP */
     gato:D({view:'side',lumbar:195,thorax:165,neck:150,head:20,uArmL:90,fArmL:90,uArmR:92,fArmR:90,thighL:90,shinL:0,thighR:92,shinR:0,footL:0,footR:0,root:[.2,-.21]}),
@@ -239,7 +247,15 @@ const RIG=(()=>{
       for(const k of['elbow','wrist','knee','ankle'])dot(J[k+s],J.h*.012)}
     ctx.restore();
   }
-  return {pose,blend,joints,breathe,debug,names:Object.keys(P),lengths:L};
+  /* mirror a pose left/right (front view swaps limbs; side view faces the other way) */
+  function mirror(p){p=typeof p==='string'?pose(p):p;const o=Object.assign({},p),m=a=>180-a;
+    for(const k of['lumbar','thorax','neck'])o[k]=m(p[k]);o.head=-p.head;o.root=[-p.root[0],p.root[1]];
+    if(p.view==='front')for(const[a,b]of[['uArmL','uArmR'],['fArmL','fArmR'],['thighL','thighR'],['shinL','shinR'],['footL','footR']]){o[a]=m(p[b]);o[b]=m(p[a])}
+    else for(const k of['uArmL','fArmL','uArmR','fArmR','thighL','shinL','thighR','shinR','footL','footR'])o[k]=m(p[k]);
+    return o}
+  /* blend that routes through an in-between pose (e.g. 'montanaArriba' or open arms) so limbs never sweep across the face */
+  function via(a,mid,b,t){return t<.5?blend(a,mid,t*2):blend(mid,b,(t-.5)*2)}
+  return {pose,blend,via,mirror,joints,breathe,debug,names:Object.keys(P),lengths:L};
 })();
 
 
