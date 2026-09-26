@@ -169,24 +169,24 @@ function PT(t){for(let i=1;i<TMAP.length;i++){const a=TMAP[i-1],b=TMAP[i];if(t<=
 const RIG=(()=>{
   const L={lumbar:.16,thorax:.19,neck:.05,head:.105,upper:.15,fore:.14,hand:.035,thigh:.21,shin:.21,foot:.065,shoulder:.085,hip:.055};
   const B=['lumbar','thorax','neck','head','uArmL','fArmL','uArmR','fArmR','thighL','shinL','footL','thighR','shinR','footR'];
-  const D=(o)=>Object.assign({lumbar:-90,thorax:-90,neck:-90,head:0,uArmL:100,fArmL:95,uArmR:80,fArmR:85,thighL:93,shinL:90,footL:180,thighR:87,shinR:90,footR:0,root:[0,-.42],view:'front'},o);
+  const D=(o)=>Object.assign({lumbar:-90,thorax:-90,neck:-90,head:0,uArmL:100,fArmL:95,uArmR:80,fArmR:85,thighL:93,shinL:90,footL:112,thighR:87,shinR:90,footR:68,root:[0,-.42],view:'front'},o);
   const P={
     /* standing, arms relaxed */
     montana:D({}),
     /* standing tall, arms stretched up */
     montanaArriba:D({uArmL:-100,fArmL:-95,uArmR:-80,fArmR:-85,root:[0,-.43]}),
     /* tree: stand on screen-left leg, right foot on the left CALF (never the knee), palms together above head */
-    arbol:D({thighL:90,shinL:90,thighR:35,shinR:150,footR:180,uArmL:-110,fArmL:-55,uArmR:-70,fArmR:-125,root:[0,-.42]}),
+    arbol:D({thighL:90,shinL:90,thighR:55,shinR:150,footR:180,uArmL:-110,fArmL:-55,uArmR:-70,fArmR:-125,root:[0,-.42]}),
     /* flamingo: balance on one leg, other knee lifted forward, arms open like wings */
     flamenco:D({thighL:90,shinL:90,thighR:40,shinR:100,footR:20,uArmL:185,fArmL:170,uArmR:-5,fArmR:10,root:[0,-.42]}),
-    /* frog: deep squat, knees wide, hands on the floor between the feet */
-    rana:D({lumbar:-80,thorax:-95,thighL:165,shinL:100,thighR:15,shinR:80,footL:180,footR:0,uArmL:105,fArmL:85,uArmR:75,fArmR:95,root:[0,-.2]}),
+    /* frog: deep squat, knees wide, palms together at the chest (elbows gently open the knees) */
+    rana:D({lumbar:-80,thorax:-95,thighL:165,shinL:100,thighR:15,shinR:80,footL:128,footR:52,uArmL:112,fArmL:-36,uArmR:68,fArmR:216,root:[0,-.2]}),
     /* butterfly: seated, soles together, knees out, hands holding the feet */
     mariposa:D({thighL:165,shinL:25,thighR:15,shinR:155,footL:0,footR:180,uArmL:112,fArmL:60,uArmR:68,fArmR:120,root:[0,-.07]}),
     /* seated cross-legged for breathing */
     sentado:D({thighL:170,shinL:20,thighR:10,shinR:160,footL:0,footR:180,uArmL:108,fArmL:40,uArmR:72,fArmR:140,root:[0,-.07]}),
     /* warrior II: wide stance, front knee bent over the ankle, arms long to the sides, gaze over the front hand */
-    guerrero:D({thighL:130,shinL:92,thighR:62,shinR:62,footL:180,footR:0,uArmL:180,fArmL:180,uArmR:0,fArmR:0,head:0,root:[0,-.33]}),
+    guerrero:D({thighL:130,shinL:92,thighR:62,shinR:62,footL:170,footR:75,uArmL:180,fArmL:180,uArmR:0,fArmR:0,head:0,root:[0,-.33]}),
     /* lion breath: kneeling tall on the heels, hands on the knees, mouth wide open (story draws tongue + roar) */
     leon:D({thighL:100,shinL:5,thighR:80,shinR:175,footL:0,footR:180,uArmL:108,fArmL:80,uArmR:72,fArmR:100,root:[0,-.22],mouth:'roar'}),
     /* side-view poses (character faces screen-left) */
@@ -194,9 +194,9 @@ const RIG=(()=>{
     barco:D({view:'side',lumbar:-68,thorax:-74,neck:-85,head:0,uArmL:185,fArmL:180,uArmR:183,fArmR:180,thighL:-140,shinL:180,thighR:-138,shinR:182,footL:250,footR:250,root:[.03,-.07]}),
     perfil:D({view:'side',uArmL:95,fArmL:92,uArmR:85,fArmR:88,thighL:92,shinL:90,thighR:88,shinR:90,footL:180,footR:180}),
     /* cat: on hands and knees, back rounded UP */
-    gato:D({view:'side',lumbar:195,thorax:165,neck:150,head:20,uArmL:90,fArmL:90,uArmR:92,fArmR:90,thighL:90,shinL:0,thighR:92,shinR:0,footL:0,footR:0,root:[.2,-.21]}),
+    gato:D({view:'side',lumbar:195,thorax:165,neck:150,head:20,uArmL:90,fArmL:90,uArmR:92,fArmR:90,thighL:90,shinL:0,thighR:92,shinR:0,footL:0,footR:0,root:[.2,-.24]}),
     /* cow: on hands and knees, back gently dipped, chin up */
-    vaca:D({view:'side',lumbar:170,thorax:190,neck:220,head:-20,uArmL:90,fArmL:90,uArmR:92,fArmR:90,thighL:90,shinL:0,thighR:92,shinR:0,footL:0,footR:0,root:[.2,-.21]}),
+    vaca:D({view:'side',lumbar:170,thorax:190,neck:220,head:-20,uArmL:90,fArmL:90,uArmR:92,fArmR:90,thighL:90,shinL:0,thighR:92,shinR:0,footL:0,footR:0,root:[.2,-.24]}),
     /* downward dog: hips high, an upside-down V */
     perrito:D({view:'side',lumbar:142,thorax:142,neck:118,head:40,uArmL:118,fArmL:118,uArmR:120,fArmR:120,thighL:72,shinL:74,thighR:70,shinR:72,footL:180,footR:180,root:[.12,-.5]}),
     /* baby cobra: lying on the belly, small chest lift, hands under the shoulders */
@@ -209,9 +209,24 @@ const RIG=(()=>{
   const lerpA=(a,b,t)=>{let d=((b-a+540)%360)-180;return a+d*t};
   const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
   function pose(n){if(!P[n])throw new Error('RIG: unknown pose '+n);return P[n]}
+  /* joint-space interpolation: every bone is interpolated RELATIVE to its parent (knee vs thigh, elbow vs upper arm,
+     hip vs spine...), linearly within (-180,180], so a joint never swings through the inside of the body
+     (no knees bending backwards, no forearm through the arm); arms rise through the sides, not across the face. */
+  const PARENT={thorax:['lumbar',0],neck:['thorax',0],uArmL:['thorax',180],uArmR:['thorax',180],fArmL:['uArmL',0],fArmR:['uArmR',0],
+    thighL:['lumbar',180],thighR:['lumbar',180],shinL:['thighL',0],shinR:['thighR',0],footL:['shinL',0],footR:['shinR',0]};
+  const ORDER=['thorax','neck','uArmL','uArmR','fArmL','fArmR','thighL','thighR','shinL','shinR','footL','footR'];
+  /* anatomical range per joint: the relative angle is expressed inside [lo, lo+360), chosen so the joint's
+     real motion never crosses the range boundary (shoulder: lots of forward/up flexion, little extension;
+     knee/elbow: bend one way only). Front view mirrors left/right; side view faces screen-left. */
+  const RANGE={side:{uArmL:-90,uArmR:-90,thighL:-90,thighR:-90,shinL:-200,shinR:-200,fArmL:-200,fArmR:-200},
+               front:{uArmL:-90,uArmR:-270,thighL:-90,thighR:-270,shinL:-200,shinR:-160}};
+  const inRange=(a,lo)=>((a-lo)%360+360)%360+lo;
+  const rel=(p,n,view)=>{const[q,off]=PARENT[n],lo=(RANGE[view]||{})[n];return inRange(p[n]-p[q]-off,lo===undefined?-180:lo)};
   function blend(a,b,t){
     a=typeof a==='string'?pose(a):a;b=typeof b==='string'?pose(b):b;t=Math.max(0,Math.min(1,t));const k=ease(t),o={};
-    for(const n of B)o[n]=lerpA(a[n],b[n],k);
+    o.lumbar=lerpA(a.lumbar,b.lumbar,k);o.head=a.head+(b.head-a.head)*k;
+    const view=a.view===b.view?a.view:'side';
+    for(const n of ORDER){const[q,off]=PARENT[n],ra=rel(a,n,view),rb=rel(b,n,view);o[n]=o[q]+off+ra+(rb-ra)*k}
     o.root=[a.root[0]+(b.root[0]-a.root[0])*k,a.root[1]+(b.root[1]-a.root[1])*k];
     o.view=a.view===b.view?a.view:(t<.5?a.view:b.view);o.turn=a.view===b.view?0:1-Math.abs(1-2*t);return o;
   }
@@ -234,8 +249,11 @@ const RIG=(()=>{
     if(!side&&J.hipL[0]*dir>J.hipR[0]*dir){const t=J.hipL;J.hipL=J.hipR;J.hipR=t}
     for(const s of['L','R']){
       J['elbow'+s]=go(J['shoulder'+s],p['uArm'+s],L.upper);J['wrist'+s]=go(J['elbow'+s],p['fArm'+s],L.fore);J['hand'+s]=go(J['wrist'+s],p['fArm'+s],L.hand);
-      J['knee'+s]=go(J['hip'+s],p['thigh'+s],L.thigh);J['ankle'+s]=go(J['knee'+s],p['shin'+s],L.shin);J['toe'+s]=go(J['ankle'+s],p['foot'+s],L.foot);
+      J['knee'+s]=go(J['hip'+s],p['thigh'+s],L.thigh);J['ankle'+s]=go(J['knee'+s],p['shin'+s],L.shin);J['toe'+s]=go(J['ankle'+s],p['foot'+s],L.foot*(side?1:.55));
     }
+    /* floor contact: nothing may go below the ground line; if a limb would, lift the whole body just enough */
+    let low=-Infinity;for(const k in J)if(k!=='ground'&&Array.isArray(J[k]))low=Math.max(low,J[k][1]+(k==='head'?J.radius:0));
+    const pen=low-y;if(pen>0)for(const k in J)if(k!=='ground'&&Array.isArray(J[k]))J[k]=[J[k][0],J[k][1]-pen];
     J.view=p.view;J.turn=p.turn||0;J.dir=dir;J.h=h;return J;
   }
   function debug(ctx,J,col='rgba(111,159,216,.55)'){
