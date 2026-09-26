@@ -281,11 +281,13 @@ const RIG=(()=>{
 
 /* ---------- pose timeline ---------- */
 const GX=640,GY=640,BH=430;
-/* key: at time t start blending (over tr s) into pose p; m=1 mirrors (other leg/side) */
+/* key: at time t start blending (over tr s) into pose p; m=1 mirrors (other leg/side); q=1 in-between (no harp);
+   roll=1 rolls over (back <-> belly) instead of blending. Keys whose poses have different views turn the body
+   (pure pose swap hidden inside a horizontal squash) so front/side angles are never mixed into impossible legs. */
 const KEYS=[
  {t:0,p:'montana',tr:.01},
- {t:18.8,p:'sentado',tr:2.6},
- {t:50.6,p:'montana',tr:2.8},
+ {t:18.8,p:'rana',tr:1.3,q:1},{t:20.1,p:'sentado',tr:1.5},          /* down through a squat, then cross the legs */
+ {t:50.6,p:'rana',tr:1.3,q:1},{t:51.9,p:'montana',tr:1.5},          /* up through a squat */
  {t:60.3,p:'montanaArriba',tr:3.2},
  {t:70.6,p:'montana',tr:3.2},
  {t:80.4,p:'arbolPrep',tr:2},{t:82.4,p:'arbol',tr:2},
@@ -293,38 +295,55 @@ const KEYS=[
  {t:102.8,p:'arbolPrep',m:1,tr:1.2},{t:104,p:'montana',tr:1.4},
  {t:109.9,p:'flamenco',tr:2.6},
  {t:120.3,p:'montana',tr:1.7},{t:122,p:'flamenco',m:1,tr:2.2},
- {t:127.2,p:'perfil',tr:1.6},{t:128.8,p:'mesa',tr:3},
+ {t:126.4,p:'montana',tr:1},{t:127.4,p:'perfil',tr:.8},{t:128.2,p:'kneelS',tr:1.3,q:1},{t:129.5,p:'mesa',tr:1.5},
  {t:133.4,p:'gato',tr:1.9},{t:137.8,p:'vaca',tr:1.9},
  {t:142.4,p:'gato',tr:1.8},{t:144.4,p:'vaca',tr:1.8},{t:146.4,p:'gato',tr:1.8},{t:148.4,p:'vaca',tr:1.8},{t:150.4,p:'mesa',tr:1.6},
  {t:155.9,p:'perrito',tr:2.8},
  {t:170.5,p:'mesa',tr:2.2},{t:172.9,p:'cobra',tr:3},
- {t:190.4,p:'mesa',tr:2.4},{t:197.9,p:'rana',tr:3},
- {t:211.2,p:'mariposa',tr:3},
- {t:249.8,p:'tortuga',tr:3.4},
- {t:261.4,p:'osito',tr:3.8},
- {t:281,p:'sentado',tr:3},
- {t:285,p:'montana',tr:2.4},
+ {t:190.4,p:'mesa',tr:2.4},{t:197.9,p:'ranaS',tr:2.4},              /* frog seen from the side: hands on the floor */
+ {t:210.2,p:'rana',tr:1,q:1},{t:211.2,p:'mariposa',tr:3},          /* turn to the front in the squat, then sit */
+ {t:249.4,p:'kneelF',tr:1.6,q:1},{t:251,p:'kneelS',tr:.8,q:1},{t:251.8,p:'tortuga',tr:2.2},
+ {t:261.4,p:'cobra',tr:1.8,q:1},{t:263.4,p:'osito',tr:1,roll:1},  /* slide onto the belly, roll onto the back */
+ {t:280,p:'cobra',tr:1,roll:1,q:1},{t:281,p:'mesa',tr:1.8},{t:282.8,p:'ranaS',tr:1.2,q:1},{t:284,p:'perfil',tr:1.2},{t:285.2,p:'montana',tr:.8},
  {t:288.6,p:'arbolPrep',tr:2},{t:290.6,p:'arbol',tr:2},
  {t:294.4,p:'arbolPrep',tr:1.2},{t:295.6,p:'montana',tr:1.4},
 ];
 KEYS.forEach((k,i)=>k.i=i);
+const A=(n,o)=>Object.assign({},RIG.pose(n),o);
 const CP={mesa:RIG.blend('gato','vaca',.5)};CP.mesa.head=0;
-/* tree entry/exit: foot already up, arms opened like branches (so forearms never cross the face) */
-CP.arbolPrep=Object.assign({},RIG.pose('arbol'),{uArmL:190,fArmL:200,uArmR:-10,fArmR:-20});
-function mirror(p){const o={},sw=p.view==='front';
-  for(const k in p){if(k==='root'||k==='view'||k==='turn'||k==='chest')continue;const src=sw?(k.endsWith('L')?k.slice(0,-1)+'R':k.endsWith('R')?k.slice(0,-1)+'L':k):k;o[k]=k==='head'?-p[src]:180-p[src]}
-  o.root=[-p.root[0],p.root[1]];o.view=p.view;return o}
-function keyPose(k){const p=CP[k.p]||RIG.pose(k.p);return k.m?mirror(p):p}
+/* tree: foot on the calf (rig), arms up in a V like branches (hands never rest on the head) */
+CP.arbol=A('arbol',{uArmL:-115,fArmL:-110,uArmR:-65,fArmR:-70});
+/* tree entry/exit: foot already up, arms opened like branches */
+CP.arbolPrep=A('arbol',{uArmL:190,fArmL:200,uArmR:-10,fArmR:-20});
+/* flamingo: the lifted knee comes up clearly (knee near hip height), shin hanging, toes to the camera */
+CP.flamenco=A('flamenco',{thighR:20,shinR:95,footR:75});
+/* side kneeling tall (knees under hips, toes back) and side frog squat (heels down, hands on the floor in front) */
+CP.kneelS=A('perfil',{thighL:90,shinL:0,footL:0,thighR:92,shinR:2,footR:2,root:[0,-.225]});
+CP.ranaS=A('perfil',{lumbar:-145,thorax:-160,neck:-130,head:15,uArmL:92,fArmL:90,uArmR:94,fArmR:92,thighL:195,shinL:70,footL:180,thighR:193,shinR:72,footR:180,root:[.04,-.18]});
+/* front kneeling tall: shins point away from the camera, so they are drawn foreshortened (shinK) */
+CP.kneelF=A('montana',{thighL:97,thighR:83,shinL:90,shinR:90,root:[0,-.25],shinK:.8});
+/* child's pose: sitting back on the heels, forehead down, arms long in front */
+CP.tortuga=A('tortuga',{lumbar:180,thorax:181,neck:176,head:-10,uArmL:168,fArmL:172,uArmR:166,fArmR:171,thighL:160,shinL:0,footL:0,thighR:158,shinR:2,footR:2,root:[.12,-.1]});
+function keyPose(k){const p=CP[k.p]||RIG.pose(k.p);return k.m?RIG.mirror(p):p}
 function keyAt(t){let i=0;while(i+1<KEYS.length&&KEYS[i+1].t<=t)i++;return KEYS[i]}
-function blendAt(t){const k=keyAt(t);if(k.i===0)return keyPose(k);return RIG.blend(keyPose(KEYS[k.i-1]),keyPose(k),(t-k.t)/k.tr)}
-/* how much of a pose change is in progress (for the faint construction skeleton) */
+const ease3=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+function blendAt(t){const k=keyAt(t);if(k.i===0)return keyPose(k);const a=keyPose(KEYS[k.i-1]),b=keyPose(k),u=clamp((t-k.t)/k.tr);
+  if(a.view!==b.view||k.roll){const o=Object.assign({},u<.5?a:b),s=1-Math.abs(1-2*u);o.turn=k.roll?0:s;o.roll=k.roll?s:0;return o}
+  const o=RIG.blend(a,b,u);o.shinK=lerp(a.shinK||0,b.shinK||0,ease3(u));return o}
+/* front-view shins pointing away from the camera: shorten them toward the knee, then set the body back on the floor */
+function foreshorten(J,k){const low=()=>{let m=-1e9;for(const q in J)if(Array.isArray(J[q])&&q!=='ground')m=Math.max(m,J[q][1]);return m},l0=low();
+  for(const s of['L','R']){const K=J['knee'+s],An=J['ankle'+s],T=J['toe'+s],n=[lerp(K[0],An[0],1-k),lerp(K[1],An[1],1-k)];J['toe'+s]=[n[0]+(T[0]-An[0])*(1-k),n[1]+(T[1]-An[1])*(1-k)];J['ankle'+s]=n}
+  const d=l0-low();if(d>0)for(const q in J)if(Array.isArray(J[q])&&q!=='ground')J[q]=[J[q][0],J[q][1]+d]}
 function transAt(t){const k=keyAt(t);if(k.i===0)return 0;const u=(t-k.t)/k.tr;return u>=1?0:Math.sin(PI*clamp(u))}
 
 /* breathing guide (sentado): inhale "huele la flor", exhale "sopla la vela" */
 const BRE=[[27.4,31.2,1],[31.4,35.2,-1],[35.6,39.2,1],[39.4,43.2,-1],[44.2,47.4,1],[47.6,50.6,-1]];
-function breathAt(t){ /* 0 = empty, 1 = full lungs */
-  for(const[a,b,d]of BRE)if(t>=a&&t<b){const u=sm(inv(a,b,t));return d>0?u:1-u}
-  if(t>=21&&t<50.6)return .15;return -1}
+/* 0 = empty, 1 = full lungs. Continuous: each phase starts exactly where the previous one ended (holds in the
+   small gaps between inhale and exhale), and smoothstep gives a soft stop at the top and the bottom - no pops */
+function breathAt(t){if(!(t>=21&&t<50.6))return -1;let v=.15;
+  for(const[a,b,d]of BRE){if(t<a)return v;const g=d>0?1:0;if(t<b)return lerp(v,g,sm(inv(a,b,t)));v=g}return v}
+/* soft 0..1 weight of being in an inhale (d>0) or exhale (d<0) phase, for the flower / candle cues */
+function phaseW(t,dir){let w=0;for(const[a,b,d]of BRE)if(d*dir>0)w=Math.max(w,win(t,a-.12,b+.12,.35,.35));return w}
 const LEN=RIG.lengths;
 function keepAnkle(p,s,th){ /* rotate a thigh but keep that ankle where it was (butterfly wings) */
   const a=p['thigh'+s]*PI/180,b=p['shin'+s]*PI/180,ax=Math.cos(a)*LEN.thigh+Math.cos(b)*LEN.shin,ay=Math.sin(a)*LEN.thigh+Math.sin(b)*LEN.shin;
@@ -344,12 +363,12 @@ function poseAt(t){
   p.head+=2.4*Math.sin(t*1.05)+1.2*Math.sin(t*.37);if(keyAt(t).p==='montana'&&!wv){const s=2.2*Math.sin(t*.9);p.uArmL+=s;p.uArmR-=s;p.fArmL+=s*1.6;p.fArmR-=s*1.6}
   return p}
 /* balance poses sway a little around the standing ankle, then settle */
-const BAL=[[82.4,94.6,'L'],[99,102.8,'R'],[112.2,120.3,'L'],[123.8,127.2,'R'],[290.8,294.4,'L']];
+const BAL=[[82.4,94.6,'L'],[99,102.8,'R'],[112.2,120.3,'L'],[123.8,126.4,'R'],[290.8,294.4,'L']];
 function swayAt(t){for(const[a,b,s]of BAL)if(t>=a-.6&&t<b){const u=t-a,w=win(t,a-.6,b,.6,.8);
     return{s,w,ang:w*(.055*Math.exp(-.8*Math.max(0,u))*Math.sin(4.6*u)+.012*Math.sin(t*1.7)+.006*Math.sin(t*3.1+1))}}
   return null}
 function rotPts(J,c,ang){const cs=Math.cos(ang),sn=Math.sin(ang);for(const k in J){const v=J[k];if(Array.isArray(v)&&v.length===2&&k!=='ground'){const dx=v[0]-c[0],dy=v[1]-c[1];J[k]=[c[0]+dx*cs-dy*sn,c[1]+dx*sn+dy*cs]}}}
-function bodyAt(t){t=PT(t);const J=RIG.joints(poseAt(t),GX,GY,BH);const sw=swayAt(t);
+function bodyAt(t){t=PT(t);const P0=poseAt(t),J=RIG.joints(P0,GX,GY,BH);if(P0.shinK>0&&P0.view==='front')foreshorten(J,P0.shinK);J.roll=P0.roll||0;const sw=swayAt(t);
   const k=keyAt(t),u=k.i?(t-k.t)/k.tr:1;J.supine=(k.p==='osito'&&u>.5)||(k.i&&KEYS[k.i-1].p==='osito'&&u<.5);
   if(sw){J.pivot=J['ankle'+sw.s].slice();rotPts(J,J.pivot,sw.ang);J.sway=sw}return J}
 
@@ -510,8 +529,12 @@ function softLimb(pts,ws,col,seed){
   const O=softPath(pts,ws,1.6).map((p,i)=>jit(p,seed+i));pathS(ctx,O,true);ctx.fillStyle=rgba(GR,.78);ctx.fill();
   const P=softPath(pts,ws,0);pathS(ctx,P,true);ctx.fillStyle=col;ctx.fill();
   ctx.strokeStyle='rgba(255,246,225,.25)';ctx.lineWidth=ws[0]*.28;ctx.lineCap='round';ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0]-ws[i]*.16,p[1]-ws[i]*.2):ctx.moveTo(p[0]-ws[i]*.16,p[1]-ws[i]*.2));ctx.stroke()}
+/* joint point: pencil-ringed disc of the limb colour, drawn over the two segment ends so the seam never shows */
+function jointDot(p,r,col,seed){const q=jit(p,seed);ctx.fillStyle=rgba(GR,.78);ctx.beginPath();ctx.arc(q[0],q[1],r+1.7,0,TAU);ctx.fill();
+  ctx.fillStyle=col;ctx.beginPath();ctx.arc(p[0],p[1],r,0,TAU);ctx.fill();ctx.fillStyle='rgba(255,246,225,.22)';ctx.beginPath();ctx.arc(p[0]-r*.28,p[1]-r*.32,r*.42,0,TAU);ctx.fill()}
 function limbArm(J,s,dark){const c=dark?mixc(SK,'#3a2a2a',.25):SK,S0=J['shoulder'+s],E=J['elbow'+s],Wr=J['wrist'+s],Hd=J['hand'+s];
-  softLimb([S0,E,Wr],[BH*.056,BH*.042,BH*.034],c,s==='L'?10:20);
+  /* two rigid segments with a round elbow joint on top (a clear hinge, no rubbery spline across the elbow) */
+  softLimb([E,Wr],[BH*.042,BH*.034],c,s==='L'?12:22);softLimb([S0,E],[BH*.056,BH*.042],c,s==='L'?10:20);jointDot(E,BH*.024,c,s==='L'?14:24);
   /* relaxed mitten hand along the forearm, with a little thumb */
   const d=[Hd[0]-Wr[0],Hd[1]-Wr[1]],a=Math.atan2(d[1],d[0]),hc=[Wr[0]+d[0]*.7,Wr[1]+d[1]*.7];
   ctx.save();ctx.translate(hc[0],hc[1]);ctx.rotate(a);ctx.fillStyle=c;ctx.strokeStyle=rgba(GR,.78);ctx.lineWidth=1.6;
@@ -521,7 +544,9 @@ function limbArm(J,s,dark){const c=dark?mixc(SK,'#3a2a2a',.25):SK,S0=J['shoulder
   ctx.fillStyle=EMB[s==='L'?0:2];dot(sl,BH*.011,EMB[s==='L'?0:2],false)}
 function limbLeg(J,s,dark){const c=dark?mixc(LEG,'#10302f',.3):LEG,f=dark?mixc(SK,'#3a2a2a',.25):SK;
   softLimb([J['ankle'+s],J['toe'+s]],[BH*.036,BH*.03],f,s==='L'?30:40);
-  softLimb([J['hip'+s],J['knee'+s],J['ankle'+s]],[BH*.082,BH*.056,BH*.044],c,s==='L'?50:60);
+  /* thigh and shin as two segments meeting at a round knee (kneecap) and a small ankle joint: the bend reads as a hinge */
+  softLimb([J['knee'+s],J['ankle'+s]],[BH*.056,BH*.044],c,s==='L'?52:62);jointDot(J['ankle'+s],BH*.023,c,s==='L'?56:66);
+  softLimb([J['hip'+s],J['knee'+s]],[BH*.082,BH*.056],c,s==='L'?50:60);jointDot(J['knee'+s],BH*.032,c,s==='L'?54:64);
   const a=J['knee'+s],b=J['ankle'+s];dot([lerp(a[0],b[0],.86),lerp(a[1],b[1],.86)],BH*.011,GOLD,false)}
 function torsoPts(J){
   const front=J.view==='front',u=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;return[dx/l,dy/l]};
@@ -583,6 +608,7 @@ function drawScarf(J,t,part){
 function drawKid(J,t,tp){
   const front=J.view==='front';ctx.save();
   if(J.turn>0){ctx.translate(J.pelvis[0],0);ctx.scale(1-.55*J.turn,1);ctx.translate(-J.pelvis[0],0)}
+  if(J.roll>0){ctx.translate(0,GY);ctx.scale(1,1-.3*J.roll);ctx.translate(0,-GY)} /* rolling over: flatten toward the floor */
   /* soft contact shadow */
   ctx.fillStyle='rgba(60,30,20,.16)';ctx.beginPath();ctx.ellipse(J.pelvis[0],GY+4,BH*.28,BH*.025,0,0,TAU);ctx.fill();
   drawScarf(J,t,'tail');
@@ -623,13 +649,13 @@ function drawBreath(J,tp,t){const b=breathAt(tp);if(b<0)return;const a=win(tp,21
   const c=J.chest,r=62+95*b;ctx.save();ctx.globalAlpha=a;
   ctx.fillStyle=rgba('#9fdad6',.16+.08*b);ctx.beginPath();ctx.arc(c[0],c[1],r,0,TAU);ctx.fill();
   pencil(ctx,arcP(c[0],c[1],r,r,0,TAU,40),BQ()%4+70,{w:2.2,a:.75,j:.8,passes:1});
-  ctx.setLineDash([3,7]);ctx.strokeStyle=rgba(GR,.25);ctx.lineWidth=1;ctx.beginPath();ctx.arc(c[0],c[1],157,0,TAU);ctx.stroke();ctx.beginPath();ctx.arc(c[0],c[1],62,0,TAU);ctx.stroke();ctx.setLineDash([]);
-  const inh=BRE.some(([x,y,d])=>d>0&&tp>=x&&tp<y),exh=BRE.some(([x,y,d])=>d<0&&tp>=x&&tp<y);
-  const fa=inh?1:.35,fx=c[0]-250,fy=c[1]+10;ctx.globalAlpha=a*fa;ctx.translate(fx,fy);ctx.scale(1.7,1.7);ctx.translate(-fx,-fy);
+  ctx.setLineDash([3,7]);ctx.strokeStyle=rgba(GR,.25);ctx.lineWidth=1;ctx.beginPath();ctx.arc(c[0],c[1],163,0,TAU);ctx.stroke();ctx.beginPath();ctx.arc(c[0],c[1],56,0,TAU);ctx.stroke();ctx.setLineDash([]);
+  const inhW=phaseW(tp,1),exhW=phaseW(tp,-1);
+  const fa=.35+.65*inhW,fx=c[0]-250,fy=c[1]+10;ctx.globalAlpha=a*fa;ctx.translate(fx,fy);ctx.scale(1.7,1.7);ctx.translate(-fx,-fy);
   taper(ctx,[[fx,fy+60],[fx+3,fy+25],[fx,fy]],4,'#5f8a44');for(let i=0;i<6;i++){const q=i/6*TAU+t*.3;ctx.fillStyle=i%2?'#f29bb0':'#e8604c';ctx.beginPath();ctx.ellipse(fx+Math.cos(q)*11,fy+Math.sin(q)*11,9,5,q,0,TAU);ctx.fill()}dot([fx,fy],5,GOLD,false);
-  if(inh)for(let k=0;k<3;k++){const u=((t*.7+k/3)%1);ctx.fillStyle=rgba('#f29bb0',.5*(1-u));ctx.beginPath();ctx.arc(lerp(fx+14,c[0]-40,u),fy-10-Math.sin(u*PI)*30,3,0,TAU);ctx.fill()}
-  ctx.setTransform(cv.width/W,0,0,cv.height/H,0,0);const cx=c[0]+250,cy=c[1]+20;ctx.globalAlpha=a*(exh?1:.35);ctx.translate(cx,cy);ctx.scale(1.5,1.5);ctx.translate(-cx,-cy);ctx.fillStyle='#f6ecd4';ctx.fillRect(cx-9,cy-10,18,70);ctx.strokeStyle=rgba(GR,.7);ctx.lineWidth=1.5;ctx.strokeRect(cx-9,cy-10,18,70);
-  const bend=exh?.9:0,fl=1-.35*(exh?sm(inv(0,1.2,tp-(BRE.find(([x,y,d])=>d<0&&tp>=x&&tp<y)||[tp])[0])):0);
+  if(inhW>0)for(let k=0;k<3;k++){const u=((t*.7+k/3)%1);ctx.fillStyle=rgba('#f29bb0',.5*(1-u)*inhW);ctx.beginPath();ctx.arc(lerp(fx+14,c[0]-40,u),fy-10-Math.sin(u*PI)*30,3,0,TAU);ctx.fill()}
+  ctx.setTransform(cv.width/W,0,0,cv.height/H,0,0);const cx=c[0]+250,cy=c[1]+20;ctx.globalAlpha=a*(.35+.65*exhW);ctx.translate(cx,cy);ctx.scale(1.5,1.5);ctx.translate(-cx,-cy);ctx.fillStyle='#f6ecd4';ctx.fillRect(cx-9,cy-10,18,70);ctx.strokeStyle=rgba(GR,.7);ctx.lineWidth=1.5;ctx.strokeRect(cx-9,cy-10,18,70);
+  const bend=.9*exhW,fl=1-.35*exhW;
   ctx.fillStyle=rgba(GOLD,.9);ctx.beginPath();ctx.ellipse(cx+bend*9,cy-22,6*fl,14*fl,bend*.8,0,TAU);ctx.fill();ctx.fillStyle=rgba('#e8604c',.8);ctx.beginPath();ctx.ellipse(cx+bend*6,cy-18,3*fl,7*fl,bend*.8,0,TAU);ctx.fill();
   ctx.restore()}
 /* balance geometry: plumb line through the standing ankle and a centre-of-mass dot that wobbles then settles */
@@ -824,7 +850,7 @@ const STORY={bpm:66,finale:296.2,intro:7,
   finaleNotes:[65,69,72,77,81,84,89],finalePad:[41,53,60,65],
   soft:st=>st>=7,
   events:sfx=>{const E=[[.4,()=>sfx.harp(true)],[2.2,()=>sfx.twinkle()]];
-    KEYS.forEach(k=>{if(k.i&&['sentado','montanaArriba','arbol','flamenco','gato','perrito','cobra','rana','mariposa','tortuga','osito'].includes(k.p))E.push([AT(k.t)+.2,()=>sfx.harp(true)])});
+    KEYS.forEach(k=>{if(k.i&&!k.q&&['sentado','montanaArriba','arbol','flamenco','gato','perrito','cobra','ranaS','mariposa','tortuga','osito'].includes(k.p))E.push([AT(k.t)+.2,()=>sfx.harp(true)])});
     DONE.forEach(d=>E.push([AT(d)+.3,()=>sfx.twinkle()]));
     SEC.forEach(s=>{if(s[0]>1)E.push([AT(s[0])+.4,()=>sfx.ding()])});
     [[76,()=>sfx.chirp()],[106,()=>sfx.chirp()],[195,()=>sfx.plop(.3)],[214,()=>sfx.sparkle()],[296,()=>sfx.sparkle()]].forEach(([t,f])=>E.push([AT(t),f]));
